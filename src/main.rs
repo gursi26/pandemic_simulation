@@ -3,23 +3,29 @@ use rand::Rng;
 use raylib::prelude::*;
 
 const TARGETFPS: u32 = 50;
-const BG_COLOR: Color = Color::WHITE;
 
 // ball params
 const RADIUS: f32 = 5.0;
 const NUMBALLS: i32 = 300;
 const MAXSPEED: i32 = 3;
+
+// colors 
 const INFECTED_COLOR: Color = Color::RED;
-const NORMAL_COLOR: Color = Color::BLUE;
+const NORMAL_COLOR: Color = Color::GREEN;
+const RECOVERED_COLOR: Color = Color::DARKBLUE;
+const BG_COLOR: Color = Color::WHITE;
 
 // infection params
 const INFECTION_RADIUS: f32 = 3.0;
-const INFECTION_RATE: f32 = 0.15;
+const INFECTION_RATE: f32 = 0.3;
+const BASE_RECOVERY_TIME: i32 = 6; // time in seconds for recovery/death
+const RECOVERY_TIME_RANGE: i32 = 2; // recovery_time = BASE_RECOVERY_TIME + rand(-RECOVERY_TIME_RANGE, RECOVERY_TIME_RANGE)
 
 #[derive(Clone, Copy)]
 struct Ball {
     pos: Vector2,
     speed: Vector2,
+    time_infected: i32
 }
 
 impl Ball {
@@ -35,6 +41,7 @@ impl Ball {
         Ball {
             pos: Vector2::new(posx, posy),
             speed: Vector2::new(speedx, speedy),
+            time_infected: 0
         }
     }
 
@@ -55,8 +62,11 @@ impl Ball {
     fn infection_check(
         infected_arr: &mut Vec<Ball>,
         normal_arr: &mut Vec<Ball>,
+        recovered_arr: &mut Vec<Ball>,
     ) {
-        for i in 0..infected_arr.len() {
+        let mut i: i32 = 0;
+        let mut outer_loop_end: i32 = infected_arr.len() as i32; 
+        while i < outer_loop_end {
             let mut j: i32 = 0;
             let mut end_idx: i32 = normal_arr.len() as i32;
             while j < end_idx {
@@ -75,6 +85,15 @@ impl Ball {
                 }
                 j += 1;
             }
+            let recovery_time: i32 = BASE_RECOVERY_TIME + rand::thread_rng().gen_range(-RECOVERY_TIME_RANGE..RECOVERY_TIME_RANGE);
+            if infected_arr[i as usize].time_infected >= recovery_time * TARGETFPS as i32 {
+                recovered_arr.push(infected_arr.remove(i as usize));
+                i -= 1; 
+                outer_loop_end -= 1;
+            } else {
+                infected_arr[i as usize].time_infected += 1;
+            }
+            i += 1; 
         }
     }
 
@@ -88,23 +107,27 @@ impl Ball {
     }
 }
 
-fn draw_stats(d: &mut RaylibDrawHandle, infected_len: usize, normal_len: usize) {
-        d.draw_rectangle(0, 0, 145, 85, Color::DARKBLUE);
-        d.draw_rectangle(0, 0, 140, 80, Color::WHITE);
+fn draw_stats(d: &mut RaylibDrawHandle, infected_len: usize, normal_len: usize, recovered_len: usize) {
+        d.draw_rectangle(0, 0, 170, 110, Color::DARKBLUE);
+        d.draw_rectangle(0, 0, 165, 105, Color::WHITE);
         let fps: String = d.get_fps().to_string();
         let num_infected: String = infected_len.to_string();
         let num_normal: String = normal_len.to_string();
+        let num_recovered: String = recovered_len.to_string();
 
         let mut fps_string: String = "FPS : ".to_owned();
         let mut normal: String = "Normal : ".to_owned();
         let mut infected: String = "Infected: ".to_owned();
+        let mut recovered: String = "Recovered: ".to_owned();
         normal.push_str(&num_normal);
         infected.push_str(&num_infected);
+        recovered.push_str(&num_recovered);
         fps_string.push_str(&fps);
 
         d.draw_text(&fps_string, 5, 5, 20, Color::BLACK);
         d.draw_text(&normal, 5, 30, 20, NORMAL_COLOR);
         d.draw_text(&infected, 5, 55, 20, INFECTED_COLOR);
+        d.draw_text(&recovered, 5, 80, 20, RECOVERED_COLOR);
 }
 
 fn main() {
@@ -115,6 +138,7 @@ fn main() {
 
     let mut infected_arr: Vec<Ball> = Vec::new();
     let mut normal_arr: Vec<Ball> = Vec::new();
+    let mut recovered_arr: Vec<Ball> = Vec::new();
     Ball::populate(height, width, &mut infected_arr, &mut normal_arr);
 
     while !rl.window_should_close() {
@@ -149,7 +173,20 @@ fn main() {
             ball.wall_collision(width, height);
         }
 
-        Ball::infection_check(&mut infected_arr, &mut normal_arr);
-        draw_stats(&mut d, infected_arr.len(), normal_arr.len());
+        // drawing recovered particles
+        for i in 0..recovered_arr.len() {
+            let ball = &mut recovered_arr[i as usize];
+            d.draw_circle_v(ball.pos, RADIUS, RECOVERED_COLOR);
+
+            // updating positions
+            ball.pos.x += ball.speed.x;
+            ball.pos.y += ball.speed.y;
+
+            // wall collision check and update
+            ball.wall_collision(width, height);
+        }
+
+        Ball::infection_check(&mut infected_arr, &mut normal_arr, &mut recovered_arr);
+        draw_stats(&mut d, infected_arr.len(), normal_arr.len(), recovered_arr.len());
     }
 }
