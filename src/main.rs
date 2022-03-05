@@ -7,14 +7,14 @@ const BG_COLOR: Color = Color::WHITE;
 
 // ball params
 const RADIUS: f32 = 5.0;
-const NUMBALLS: i32 = 800;
+const NUMBALLS: i32 = 500;
 const MAXSPEED: i32 = 3;
 const INFECTED_COLOR: Color = Color::RED;
 const NORMAL_COLOR: Color = Color::BLUE;
 
 // infection params
-const INFECTION_RADIUS: f32 = 5.0;
-const INFECTION_RATE: f32 = 0.25;
+const INFECTION_RADIUS: f32 = 3.5;
+const INFECTION_RATE: f32 = 0.2;
 
 #[derive(Clone, Copy)]
 struct Ball {
@@ -66,7 +66,7 @@ impl Ball {
                     normal_arr[j as usize].pos,
                     RADIUS,
                 ) {
-                    let random = rand::thread_rng().gen_range(1 as i32..100 as i32) as f32 / 100.0;
+                    let random = rand::thread_rng().gen_range(1..100) as f32 / 100.0;
                     if random < INFECTION_RATE {
                         infected_arr.push(normal_arr.remove(j as usize));
                         j -= 1;
@@ -108,7 +108,8 @@ fn draw_stats(d: &mut RaylibDrawHandle, infected_len: usize, normal_len: usize) 
 }
 
 fn main() {
-    let (mut rl, thread) = init().size(1420, 827).resizable().title("Pandemic Simulation").build();
+    let (mut rl, thread) = init().size(1440, 900).fullscreen().title("Pandemic Simulation").build();
+    //let (mut rl, thread) = init().size(1420, 827).resizable().title("Pandemic Simulation").build();
     let (mut width, mut height) = (rl.get_screen_width(), rl.get_screen_height());
     rl.set_target_fps(TARGETFPS);
 
@@ -121,8 +122,8 @@ fn main() {
         let mut d = rl.begin_drawing(&thread);
         d.clear_background(BG_COLOR);
 
+        // drawing infected balls
         for i in 0..infected_arr.len() {
-            // drawing infected balls
             let ball = &mut infected_arr[i as usize];
             d.draw_circle_v(ball.pos, RADIUS + 1.0, INFECTED_COLOR);
             d.draw_circle_v(ball.pos, RADIUS - 1.0, Color::WHITE);
@@ -135,8 +136,8 @@ fn main() {
             ball.wall_collision(width, height);
         }
 
+        // drawing normal balls
         for i in 0..normal_arr.len() {
-            // drawing normal balls
             let ball = &mut normal_arr[i as usize];
             d.draw_circle_v(ball.pos, RADIUS, NORMAL_COLOR);
 
