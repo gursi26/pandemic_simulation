@@ -7,14 +7,14 @@ const BG_COLOR: Color = Color::WHITE;
 
 // ball params
 const RADIUS: f32 = 5.0;
-const NUMBALLS: i32 = 500;
+const NUMBALLS: i32 = 300;
 const MAXSPEED: i32 = 3;
 const INFECTED_COLOR: Color = Color::RED;
 const NORMAL_COLOR: Color = Color::BLUE;
 
 // infection params
-const INFECTION_RADIUS: f32 = 3.5;
-const INFECTION_RATE: f32 = 0.2;
+const INFECTION_RADIUS: f32 = 3.0;
+const INFECTION_RATE: f32 = 0.15;
 
 #[derive(Clone, Copy)]
 struct Ball {
@@ -62,7 +62,7 @@ impl Ball {
             while j < end_idx {
                 if collision::check_collision_circles(
                     infected_arr[i as usize].pos,
-                    INFECTION_RADIUS,
+                    RADIUS + INFECTION_RADIUS,
                     normal_arr[j as usize].pos,
                     RADIUS,
                 ) {
