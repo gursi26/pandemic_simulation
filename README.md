@@ -1,6 +1,6 @@
 # pandemic_simulation
 
-A simple pandemic simulation with customizable parameters written in Rust. 
+A simple pandemic simulation with customizable parameters written in Rust, rendered with [Raylib](https://www.raylib.com). 
 
 https://user-images.githubusercontent.com/75204369/156871852-c7133c73-31fc-400e-8739-307f45d052f4.mp4
 
@@ -16,4 +16,4 @@ Instructions:
 3. `cargo run`
 
 Dependecies: 
-- [Raylib](https://www.raylib.com)
+- [raylib-rs](https://crates.io/crates/raylib)
