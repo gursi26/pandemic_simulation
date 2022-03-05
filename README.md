@@ -17,3 +17,15 @@ Instructions:
 
 Dependecies: 
 - [raylib-rs](https://crates.io/crates/raylib)
+
+TODOs
+- [ ] Use grid rendering system for better performance with higher number of objects
+- [ ] Other, more optimised collision detection methods
+- [ ] Include phenomena like
+  - [ ] Social distancing
+  - [ ] Lockdown with frequent trips to a central location (like a grocery store)
+  - [ ] Separate communities with travel between them
+  - [ ] Quarantine zones for infected patients
+  - [ ] Asymptomatic cases
+  - [ ] Fatality rate
+  - [ ] Virus mutating into a stronger variant (more contagious or more deadly)
