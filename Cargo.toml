@@ -8,4 +8,3 @@ edition = "2021"
 [dependencies]
 raylib = { version = "3.7" }
 rand = "0.8.5"
-
