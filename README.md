@@ -29,6 +29,6 @@ TODOs
   - [ ] Separate communities with travel between them
   - [ ] Quarantine zones for infected patients
   - [ ] Asymptomatic cases
-  - [ ] Fatality rate
+  - [X] Fatality rate
   - [X] Recovery rate
   - [ ] Virus mutating into a stronger variant (more contagious or more deadly)
