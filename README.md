@@ -11,6 +11,7 @@ Customisable parameters:
 - MAXSPEED - Maximum possible speed that people move around at (speeds and start locations are random)
 - BASE_RECOVERY_TIME - Base time for recovery
 - RECOVERY_TIME_RANGE - `recovery_time = BASE_RECOVERY_TIME + rand(-RECOVERY_TIME_RANGE, RECOVERY_TIME_RANGE)`, accounts for natural variation in recovery times.
+- FATALITY_RATE - Percentage of people that would die after `recovery_time` has elapsed. Remaining will recover.
 
 Instructions: 
 1. `git clone https://github.com/gursi26/pandemic_simulation.git`
