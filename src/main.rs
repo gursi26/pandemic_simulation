@@ -1,6 +1,9 @@
 extern crate raylib;
 use raylib::prelude::*;
 use rand::Rng;
+use std::ffi::CString;
+
+
 
 const TARGETFPS: u32 = 50;
 
@@ -43,6 +46,7 @@ struct Ball {
 }
 
 impl Ball {
+
     fn new_ball(startx: i32, starty: i32, endx: i32, endy: i32) -> Ball {
         let posx = rand::thread_rng().gen_range(startx + RADIUS as i32..(endx - RADIUS as i32)) as f32;
         let posy = rand::thread_rng().gen_range(starty + RADIUS as i32..(endy - RADIUS as i32)) as f32;
@@ -143,18 +147,25 @@ fn draw_stats(d: &mut RaylibDrawHandle, infected_len: usize, normal_len: usize, 
         let num_recovered: String = recovered_len.to_string();
 
         let mut fps_string: String = "FPS : ".to_owned();
-        let mut normal: String = "Normal : ".to_owned();
-        let mut infected: String = "Infected: ".to_owned();
-        let mut recovered: String = "Recovered: ".to_owned();
+        let mut normal: String = "Normal   : ".to_owned();
+        let mut infected: String = "Infected   : ".to_owned();
+        let mut recovered: String = "Recovered   : ".to_owned();
         normal.push_str(&num_normal);
         infected.push_str(&num_infected);
         recovered.push_str(&num_recovered);
         fps_string.push_str(&fps);
 
         d.draw_text(&fps_string, 5, 5, 20, Color::BLACK);
+
         d.draw_text(&normal, 5, 30, 20, NORMAL_COLOR);
+        d.draw_circle(84, 40, RADIUS, NORMAL_COLOR);
+
         d.draw_text(&infected, 5, 55, 20, INFECTED_COLOR);
+        d.draw_circle(105, 65, RADIUS + 1.0, INFECTED_COLOR);
+        d.draw_circle(105, 65, RADIUS - 1.0, Color::WHITE);
+
         d.draw_text(&recovered, 5, 80, 20, RECOVERED_COLOR);
+        d.draw_circle(126, 91, RADIUS, RECOVERED_COLOR);
 }
 
 fn draw_dead_box(d: &mut RaylibDrawHandle, dead_len: usize) {
@@ -162,9 +173,10 @@ fn draw_dead_box(d: &mut RaylibDrawHandle, dead_len: usize) {
     d.draw_line_ex(Vector2::new(0.0, (DEAD_BOX_START_Y + DEAD_BOX_HEIGHT) as f32), Vector2::new((STARTX - LINE_WIDTH) as f32, (DEAD_BOX_START_Y + DEAD_BOX_HEIGHT) as f32), LINE_WIDTH as f32, Color::BLACK);
 
     let num_dead: String = dead_len.to_string();
-    let mut dead_string: String = "Dead : ".to_owned();
+    let mut dead_string: String = "Dead   : ".to_owned();
     dead_string.push_str(&num_dead);
     d.draw_text(&dead_string, 5, DEAD_BOX_START_Y + 5, 20, Color::BLACK);
+    d.draw_circle(68, DEAD_BOX_START_Y + 15, RADIUS, DEAD_COLOR);
 }
 
 
@@ -179,9 +191,18 @@ fn main() {
     let mut dead_arr: Vec<Ball> = Vec::new();
     Ball::populate(WIDTH, HEIGHT, &mut infected_arr, &mut normal_arr);
 
+    let mut play = true;
+    let button_rect = Rectangle{x:(STARTX - 70) as f32, y:10.0, width:50.0, height:50.0};
+
     while !rl.window_should_close() {
         let mut d = rl.begin_drawing(&thread);
         d.clear_background(BG_COLOR);
+
+        if play {
+            play = d.gui_toggle(button_rect, Some(CString::new("Pause".as_bytes()).unwrap().as_c_str()), play);
+        } else {
+            play = d.gui_toggle(button_rect, Some(CString::new("Play".as_bytes()).unwrap().as_c_str()), play);
+        }
 
         let mut i: i32 = 0; 
         let mut end_idx: i32 = infected_arr.len() as i32;
@@ -189,34 +210,37 @@ fn main() {
             d.draw_circle_v(infected_arr[i as usize].pos, RADIUS + 1.0, INFECTED_COLOR);
             d.draw_circle_v(infected_arr[i as usize].pos, RADIUS - 1.0, Color::WHITE);
 
-            infected_arr[i as usize].update_position();
-            infected_arr[i as usize].wall_collision(STARTX, STARTY, WIDTH, HEIGHT);
-
-            (i, end_idx) = Ball::infection_check(&mut infected_arr, &mut normal_arr, &mut recovered_arr, &mut dead_arr, 
-                i as i32, end_idx as i32);
+            if play {
+                infected_arr[i as usize].update_position();
+                infected_arr[i as usize].wall_collision(STARTX, STARTY, WIDTH, HEIGHT);
+                (i, end_idx) = Ball::infection_check(&mut infected_arr, &mut normal_arr, &mut recovered_arr, &mut dead_arr, 
+                    i as i32, end_idx as i32);
+            }
             i += 1;
         }
 
         // drawing normal balls
         for ball in normal_arr.iter_mut() {
             d.draw_circle_v((*ball).pos, RADIUS, NORMAL_COLOR);
-            (*ball).update_position();
-            (*ball).wall_collision(STARTX, STARTY, WIDTH, HEIGHT);
+            if play {
+                (*ball).update_position();
+                (*ball).wall_collision(STARTX, STARTY, WIDTH, HEIGHT);
+            }
         }
 
         // drawing recovered particles
         for ball in recovered_arr.iter_mut() {
             d.draw_circle_v((*ball).pos, RADIUS, RECOVERED_COLOR);
-            (*ball).update_position();
-            (*ball).wall_collision(STARTX, STARTY, WIDTH, HEIGHT);
+            if play {
+                (*ball).update_position();
+                (*ball).wall_collision(STARTX, STARTY, WIDTH, HEIGHT);
+            }
         }
 
         // drawing dead particles
         draw_dead_box(&mut d, dead_arr.len());
         for ball in dead_arr.iter_mut() {
             d.draw_circle_v((*ball).pos, RADIUS, DEAD_COLOR);
-            (*ball).update_position();
-            (*ball).wall_collision(RADIUS as i32, DEAD_BOX_START_Y + 40, STARTX - RADIUS as i32, DEAD_BOX_START_Y + DEAD_BOX_HEIGHT - RADIUS as i32);
         }
 
         draw_stats(&mut d, infected_arr.len(), normal_arr.len(), recovered_arr.len());
