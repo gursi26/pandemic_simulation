@@ -30,6 +30,7 @@ const LINE_WIDTH: i32 = 3;
 // infection params
 const INFECTION_RADIUS: f32 = 1.5;
 const INFECTION_RATE: f32 = 0.1;
+const INITIAL_INFECTED_POPULATION: i32 = 5;
 const BASE_RECOVERY_TIME: i32 = 4; // time in seconds for recovery/death
 const RECOVERY_TIME_RANGE: i32 = 2; // recovery_time = BASE_RECOVERY_TIME + rand(-RECOVERY_TIME_RANGE, RECOVERY_TIME_RANGE)
 const FATALITY_RATE: f32 = 0.01;
@@ -66,17 +67,22 @@ impl Ball {
     }
 
     fn populate(
-        width: i32,
-        height: i32,
+        startx: i32,
+        starty: i32,
+        endx: i32,
+        endy: i32,
         infected_arr: &mut Vec<Ball>,
-        normal_arr: &mut Vec<Ball>
+        normal_arr: &mut Vec<Ball>,
+        initial_infected: i32,
     ) {
-        for _i in 0..(NUMBALLS - 1) {
-            let newball = Ball::new_ball(STARTX, STARTY, width, height);
+        for _i in 0..(NUMBALLS - initial_infected) {
+            let newball = Ball::new_ball(startx, starty, endx, endy);
             normal_arr.push(newball);
         }
-        let newball = Ball::new_ball(STARTX, STARTY, width, height);
-        infected_arr.push(newball);
+        for _i in 0..initial_infected {
+            let newball = Ball::new_ball(startx, starty, endx, endy);
+            infected_arr.push(newball);
+        }
     }
 
     fn update_position(&mut self) {
@@ -189,19 +195,31 @@ fn main() {
     let mut normal_arr: Vec<Ball> = Vec::new();
     let mut recovered_arr: Vec<Ball> = Vec::new();
     let mut dead_arr: Vec<Ball> = Vec::new();
-    Ball::populate(WIDTH, HEIGHT, &mut infected_arr, &mut normal_arr);
+    Ball::populate(STARTX, STARTY, WIDTH, HEIGHT, &mut infected_arr, &mut normal_arr, INITIAL_INFECTED_POPULATION);
 
     let mut play = true;
-    let button_rect = Rectangle{x:(STARTX - 70) as f32, y:10.0, width:50.0, height:50.0};
+    let mut reset: bool;
+    let play_rect = Rectangle{x:(STARTX - 53) as f32, y:10.0, width:40.0, height:40.0};
+    let reset_rect = Rectangle{x:(STARTX - 53) as f32, y:56.0, width:40.0, height:40.0};
+
 
     while !rl.window_should_close() {
         let mut d = rl.begin_drawing(&thread);
         d.clear_background(BG_COLOR);
 
         if play {
-            play = d.gui_toggle(button_rect, Some(CString::new("Pause".as_bytes()).unwrap().as_c_str()), play);
+            play = d.gui_toggle(play_rect, Some(CString::new("Pause".as_bytes()).unwrap().as_c_str()), play);
         } else {
-            play = d.gui_toggle(button_rect, Some(CString::new("Play".as_bytes()).unwrap().as_c_str()), play);
+            play = d.gui_toggle(play_rect, Some(CString::new("Play".as_bytes()).unwrap().as_c_str()), play);
+        }
+
+        reset = d.gui_button(reset_rect, Some(CString::new("Reset".as_bytes()).unwrap().as_c_str()));
+        if reset {
+            infected_arr.clear();
+            normal_arr.clear();
+            dead_arr.clear();
+            recovered_arr.clear(); 
+            Ball::populate(STARTX, STARTY, WIDTH, HEIGHT, &mut infected_arr, &mut normal_arr, INITIAL_INFECTED_POPULATION)
         }
 
         let mut i: i32 = 0; 

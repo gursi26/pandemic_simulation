@@ -5,13 +5,14 @@ A simple pandemic simulation with customizable parameters written in Rust, rende
 https://user-images.githubusercontent.com/75204369/156892046-7c64ba58-c295-4c62-9b74-b0ea915d30fb.mp4
 
 Customisable parameters: 
-- INFECTION_RADIUS - Radius around infected person where normal person is susceptible to infection
-- INFECTION_RATE - Probability that normal person will get infected when within infection radius
-- NUMBALLS - Number of people
-- MAXSPEED - Maximum possible speed that people move around at (speeds and start locations are random)
-- BASE_RECOVERY_TIME - Base time for recovery
-- RECOVERY_TIME_RANGE - `recovery_time = BASE_RECOVERY_TIME + rand(-RECOVERY_TIME_RANGE, RECOVERY_TIME_RANGE)`, accounts for natural variation in recovery times.
-- FATALITY_RATE - Percentage of people that would die after `recovery_time` has elapsed. Remaining will recover.
+- `INFECTION_RADIUS` - Radius around infected person where normal person is susceptible to infection
+- `INFECTION_RATE` - Probability that normal person will get infected when within infection radius
+- `NUMBALLS` - Number of people
+- `INITIAL_INFECTED_POPULATION` - Number of people infected at start of simualtion
+- `MAXSPEED` - Maximum possible speed that people move around at (speeds and start locations are random)
+- `BASE_RECOVERY_TIME` - Base time for recovery
+- `RECOVERY_TIME_RANGE` - `recovery_time = BASE_RECOVERY_TIME + rand(-RECOVERY_TIME_RANGE, RECOVERY_TIME_RANGE)`, accounts for natural variation in recovery times.
+- `FATALITY_RATE` - Percentage of people that would die after `recovery_time` has elapsed. Remaining will recover.
 
 Instructions: 
 1. `git clone https://github.com/gursi26/pandemic_simulation.git`
