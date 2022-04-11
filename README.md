@@ -2,7 +2,7 @@
 
 A simple pandemic simulation with customizable parameters written in Rust, rendered with [Raylib](https://www.raylib.com). 
 
-https://user-images.githubusercontent.com/75204369/156892046-7c64ba58-c295-4c62-9b74-b0ea915d30fb.mp4
+https://user-images.githubusercontent.com/75204369/162750625-4df57e3d-0c02-4b5a-9c16-b510ff232b89.mp4
 
 Customisable parameters: 
 - `INFECTION_RADIUS` - Radius around infected person where normal person is susceptible to infection
