@@ -4,7 +4,7 @@ use rand::Rng;
 use std::ffi::CString;
 
 
-const TARGETFPS: u32 = 50;
+const TARGETFPS: u32 = 100;
 
 // ball params
 const RADIUS: f32 = 5.0;
