@@ -1,6 +1,6 @@
 # pandemic_simulation
 
-A simple pandemic simulation with customizable parameters written in Rust, rendered with [Raylib](https://www.raylib.com). 
+A simple pandemic simulation with customizable parameters written in Rust, and rendered with [Raylib](https://www.raylib.com). 
 
 https://user-images.githubusercontent.com/75204369/162750625-4df57e3d-0c02-4b5a-9c16-b510ff232b89.mp4
 
